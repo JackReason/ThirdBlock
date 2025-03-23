@@ -1,247 +1,214 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 
-class Matrix
+class Vehicle
 {
 public:
-    Matrix(const std::string& name, int x = 3, int y = 3) :rows(x), cols(y)
+
+    virtual std::ostream& print(std::ostream& os) const = 0;
+
+    friend std::ostream& operator<<(std::ostream& os, const Vehicle& x)
     {
-        for (int i = 0; i < rows; i++)
-        {
-            Massive[i] = new int[cols];
-        }
-
-        for (int i = 0; i < rows; i++)
-        { 
-            for (int j = 0; j < cols; j++)
-            {
-                Massive[i][j] = rand()%99;
-            }
-        }
-
-        pName = new std::string(name);
-    }
-    Matrix(const Matrix& Original)
-    {
-        std::cout << "Making a copy, not a crap like Matrix 4" << "\n\n";
-
-        pName = new std::string(*(Original.pName));
-        rows = Original.rows;
-        cols = Original.cols;
-        Massive = new int* [Original.rows];
-        for (int i = 0; i < Original.rows; i++)
-        {
-            Massive[i] = new int[Original.cols];
-        }
-        for (int i = 0; i < Original.rows; i++)
-        {
-            for (int j = 0; j <Original.cols; j++)
-            {
-                Massive[i][j] = Original.Massive[i][j];
-            }
-        }
+        return x.print(os);
     }
 
-    ~Matrix()
-    {
-        std::cout << "calling out the Destructors, both sisters Wachowski" << "\n";
-        for (int i = 0; i < rows; i++)
-        {
-            delete[] Massive[i];
-                
-        }
-        delete[] Massive;
-        delete pName;
-    }
-
-    void PrintMatrix()
-    {
-        std::cout << "See the " << *pName << "\n\n";
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
-                std::cout << Massive[i][j] << "\t";
-            }
-            std::cout << "\n";
-        }
-        std::cout << "\n\n";
-    }
-
-private:
-    std::string* pName;
-    int rows;
-    int cols;
-    int** Massive = new int* [rows];
-    
+protected:
 };
 
-void CopyMakerFunction(Matrix M)
+class WaterVehicle : public Vehicle
 {
-    std::cout << "Copied Ok and still better then Matrix 4! Watch this : " << "\n\n";
-    M.PrintMatrix();
+public:
+
+    WaterVehicle(float a = 0) : Draught(a) {}
+
+    std::ostream& print(std::ostream& os) const override
+    {
+        os << "Draught of WaterVehicle : " << GetDraught() << "\n";
+        return os;
+    }
+
+    float GetDraught() const
+    {
+        return Draught;
+    }
+
+protected:
+ 
+    float Draught;
+};
+
+class RoadVehicle : public Vehicle
+{
+public:
+
+    RoadVehicle(float a = 0) : Clearance(a) {}
+
+    std::ostream& print(std::ostream& os) const override
+    {
+        return os;
+    }
+
+    float GetClearance() const
+    {
+        return Clearance;
+    
+    }
+protected:
+
+    float Clearance;
+};
+
+
+
+class Wheel
+{
+public:
+    Wheel(float Size = 0) : Diameter(Size) {};
+
+
+    float GetDiameter() const
+    {
+        return Diameter;
+    }
+protected:
+
+    float Diameter;
+};
+
+class Engine
+{
+public:
+    Engine(float power = 0) : Power(power) {};
+
+    float GetPower() const
+    {
+        return Power;
+    }
+protected:
+
+    float Power;
+};
+
+class Car : public RoadVehicle
+{
+public:
+    Car(const Engine& engine, const Wheel& first, const Wheel& second, const Wheel& third, const Wheel& fourth, float clearance)
+    {
+         DOHC = engine;
+         Front1 = first;
+         Front2 = second;
+         Rear1 = third;
+         Rear2 = fourth;
+         Clearance = clearance;
+    }
+
+    std::ostream& print(std::ostream& os) const override
+    {
+        os << "Car Engine : " << DOHC.GetPower() << " Wheels : " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " Ride Heght: " << GetClearance() << "\n";
+        return os;
+    }
+
+    float GetPower()
+    {
+        return DOHC.GetPower();
+    }
+
+protected:
+
+    Engine DOHC;
+
+    Wheel Front1;
+    Wheel Front2;
+    Wheel Rear1;
+    Wheel Rear2;
+};
+
+class Bicycle : public RoadVehicle
+{
+public:
+    Bicycle(const Wheel& first, const Wheel& second, float clearance)
+    {
+        Front = first;
+        Rear = second;
+        Clearance = clearance;
+    }
+    std::ostream& print(std::ostream& os) const override
+    {
+        os << "Bycicle Wheels : " << Front.GetDiameter() << " " << Rear.GetDiameter() <<" " <<" Ride Heght: " << GetClearance() << "\n";
+        return os;
+    }
+
+protected:
+
+    Wheel Front;
+    Wheel Rear;
+};
+
+void ShowAllVehicles(std::vector<Vehicle*> const &vec ) 
+{
+    for (unsigned int i = 0; i < vec.size(); i++)
+    {
+        std::cout << *vec[i] << "\n";
+    }
+}
+
+float GetHighestPower(std::vector<Vehicle*> const& vec)
+{
+    float HP = 0;
+    for (unsigned int i = 0; i < vec.size(); i++)
+    {
+        Car* tempCar = dynamic_cast<Car*>(vec[i]);
+        
+        if (tempCar)
+        {
+            if (tempCar->GetPower() > HP)
+                HP = tempCar->GetPower();
+        }
+    }
+    return HP;
+}
+
+void ClearAllVehicles(std::vector<Vehicle*> & vec)
+{
+    for (unsigned int i = 0; i < vec.size(); i++)
+    {
+        delete vec[i];
+    }
+    vec.clear();
 }
 
 // Main programme
 
 int main()
 {
-    Matrix Neo("Matrix Reloaded", 10, 10);
 
-    Neo.PrintMatrix();
+    Car c(Engine(150.f), Wheel(17.f), Wheel(17.f), Wheel(18.f), Wheel(18.f), 150.f);
+    std:: cout << c << "\n";
 
-    CopyMakerFunction(Neo);
+    Bicycle t(Wheel(20), Wheel(20), 300);
+    std::cout << t << "\n";
+
+    std::vector<Vehicle*> v;
+    v.push_back(new Car(Engine(150), Wheel(17), Wheel(17), Wheel(18), Wheel(18), 250));
+
+   // v.push_back(new Circle(Point(1, 2, 3), 7));
+
+    v.push_back(new Car(Engine(200), Wheel(19), Wheel(19), Wheel(19), Wheel(19), 130));
+
+    v.push_back(new WaterVehicle(5000));
+
+    std::cout <<"Show all vehicles" << "\n";
+    ShowAllVehicles(v);
+
+    std::cout << "The highest power is " << GetHighestPower(v)<< "\n";
+
+    std::cout << "Delete all vehicle" << "\n";
+    ClearAllVehicles(v);
 
     return 0;
 }
-
-//class Vector
-//{
-//public:
-//    Vector(float x = 0, float y = 0, float z = 0)
-//    {
-//        this->x = x;
-//        this->y = y;
-//        this->z = z;
-//
-//    }
-//
-// 
-//    float GetX() const
-//    {
-//        return this->x;
-//    }
-//     float GetY() const
-//    {
-//        return this->y;
-//    }
-//     float GetZ() const
-//    {
-//        return this->z;
-//    }
-//
-//     void SetX(float x) 
-//     {
-//         this->x = x;
-//     }
-//     void SetY(float y)
-//     {
-//         this->y = y;
-//     }
-//     void SetZ(float z)
-//     {
-//         this->z = z;
-//     }
-//
-//    friend Vector operator+(const Vector& a, const Vector& b);
-//
-//    friend std::ostream& operator<<(std::ostream& os, const Vector& v);
-//
-//    friend std::istream& operator>>(std::istream& is, Vector& v);
-//
-//    friend bool operator>(const Vector& a, const Vector& b);
-//
-//    float operator[](int index)
-//    {
-//        switch (index)
-//        {
-//        case 0:
-//            return x;
-//            break;
-//        case 1:
-//            return y;
-//            break;
-//        case 2:
-//            return z;
-//            break;
-//        default:
-//            std::cout << "index error";
-//        }
-//
-//       
-//    }
-//
-//    Vector operator -(const Vector& a)
-//    {
-//        return Vector(this->x - a.x, this->y - a.y, this->z - a.z);
-//    }
-//
-//    operator float()
-//    {
-//        return sqrt(x * x + y * y + z * z);
-//    }
-//private:
-//    float x;
-//    float y;
-//    float z;
-//};
-//
-//
-//Vector operator+(const Vector& a, const Vector& b)
-//{
-//    return Vector(a.x + b.x, a.y + b.y, a.z + b.z);
-//}
-//
-//std::ostream& operator<<(std::ostream& os, const Vector& v)
-//{
-//    os << " " << v.x << " " << v.y << " " << v.z << "\n";
-//    return os;
-//}
-//
-//std::istream& operator>>(std::istream& is, Vector& v)
-//{
-//    is >> v.x >> v.y >> v.z;
-//    return is;
-//}
-//bool operator>(const Vector& a, const Vector& b)
-//{
-//    if (sqrt(a.x * a.x + a.y * a.y + a.z * a.z) > sqrt(b.x * b.x + b.y* b.y + b.z * b.z))
-//        return true;
-//
-//    else return false ;
-//}
-//
-//Vector operator*(const Vector& a, int b)
-//{
-//    Vector temp;
-//    temp.SetX(a.GetX() * b);
-//    temp.SetY(a.GetY() * b);
-//    temp.SetZ(a.GetZ() * b);
-//    return temp;
-//}
-//
-//// main programme
-//
-//int main()
-//{
-//   
-//    Vector v1(0, 1, 2);
-//    Vector v2(3, 4, 5);
-//    Vector v3(5, 5, 5);
-//
-//    std::cout << "v1 = " << v1 << "\n";
-//    std::cout << "v2 = " << v2 << "\n";
-//    std::cout << "v3 = " << v3 << "\n";
-//
-//    std::cout << "v1+v2 = " << v1 + v2 << "\n";
-//
-//    std::cout << "Convert to float = " << float(v3) << "\n\n";
-//
-//    std::cout <<"v2 * 10 = " << v2 * 10 << "\n";
-//
-//    std::cout << "v2 - Vec" << v3 - v2 << "\n";
-//
-//    std::cout << "create your own vector = ";
-//
-//    Vector MyVector;
-//
-//    std::cin >> MyVector;
-//
-//    std::cout<< "Your Vector is = " << MyVector;
-//
-//    
-//}
 
