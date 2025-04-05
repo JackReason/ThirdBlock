@@ -2,213 +2,120 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
+void InData(int& Number);
 
-
-class Vehicle
+class Fraction
 {
 public:
-
-    virtual std::ostream& print(std::ostream& os) const = 0;
-
-    friend std::ostream& operator<<(std::ostream& os, const Vehicle& x)
+    Fraction(int a = 1, int b = 1) : Numenator(a), Denominator(b), Result (1)
     {
-        return x.print(os);
+        Result = float(Numenator) / float(Denominator);
+        std::cout << "Your fraction is : " << "\n";
+        std::cout << Numenator << "/" << Denominator << " = " << Result << "\n";
+    }
+    float GetResult() const
+    {
+        return Result;
     }
 
-protected:
-};
-
-class WaterVehicle : public Vehicle
-{
-public:
-
-    WaterVehicle(float a = 0) : Draught(a) {}
-
-    std::ostream& print(std::ostream& os) const override
-    {
-        os << "Draught of WaterVehicle : " << GetDraught() << "\n";
-        return os;
-    }
-
-    float GetDraught() const
-    {
-        return Draught;
-    }
-
-protected:
- 
-    float Draught;
-};
-
-class RoadVehicle : public Vehicle
-{
-public:
-
-    RoadVehicle(float a = 0) : Clearance(a) {}
-
-    std::ostream& print(std::ostream& os) const override
-    {
-        return os;
-    }
-
-    float GetClearance() const
-    {
-        return Clearance;
+private:
+    int Numenator;
+    int Denominator;
+    float Result;
     
-    }
-protected:
-
-    float Clearance;
 };
 
-
-
-class Wheel
+void MakingFraction()
 {
-public:
-    Wheel(float Size = 0) : Diameter(Size) {};
 
+        int Numenator = 1;
+        int Denominator = 1;
+        std::cout << "Enter Numenator = ";
+        InData(Numenator);
 
-    float GetDiameter() const
-    {
-        return Diameter;
-    }
-protected:
+        if (Numenator == 0)
+            throw std::runtime_error("Please use only correct numbers");
 
-    float Diameter;
-};
+        std::cout << "Enter Denominator = ";
+        InData(Denominator);
 
-class Engine
-{
-public:
-    Engine(float power = 0) : Power(power) {};
+        if (Denominator == 0)
+            throw std::runtime_error("Denominator can't be made zero!");
 
-    float GetPower() const
-    {
-        return Power;
-    }
-protected:
-
-    float Power;
-};
-
-class Car : public RoadVehicle
-{
-public:
-    Car(const Engine& engine, const Wheel& first, const Wheel& second, const Wheel& third, const Wheel& fourth, float clearance)
-    {
-         DOHC = engine;
-         Front1 = first;
-         Front2 = second;
-         Rear1 = third;
-         Rear2 = fourth;
-         Clearance = clearance;
-    }
-
-    std::ostream& print(std::ostream& os) const override
-    {
-        os << "Car Engine : " << DOHC.GetPower() << " Wheels : " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " " << Front1.GetDiameter() << " Ride Heght: " << GetClearance() << "\n";
-        return os;
-    }
-
-    float GetPower()
-    {
-        return DOHC.GetPower();
-    }
-
-protected:
-
-    Engine DOHC;
-
-    Wheel Front1;
-    Wheel Front2;
-    Wheel Rear1;
-    Wheel Rear2;
-};
-
-class Bicycle : public RoadVehicle
-{
-public:
-    Bicycle(const Wheel& first, const Wheel& second, float clearance)
-    {
-        Front = first;
-        Rear = second;
-        Clearance = clearance;
-    }
-    std::ostream& print(std::ostream& os) const override
-    {
-        os << "Bycicle Wheels : " << Front.GetDiameter() << " " << Rear.GetDiameter() <<" " <<" Ride Heght: " << GetClearance() << "\n";
-        return os;
-    }
-
-protected:
-
-    Wheel Front;
-    Wheel Rear;
-};
-
-void ShowAllVehicles(std::vector<Vehicle*> const &vec ) 
-{
-    for (unsigned int i = 0; i < vec.size(); i++)
-    {
-        std::cout << *vec[i] << "\n";
-    }
+        Fraction New(Numenator, Denominator);
+    
 }
 
-float GetHighestPower(std::vector<Vehicle*> const& vec)
+void InData(int& Number)
 {
-    float HP = 0;
-    for (unsigned int i = 0; i < vec.size(); i++)
-    {
-        Car* tempCar = dynamic_cast<Car*>(vec[i]);
-        
-        if (tempCar)
+    
+        std::cin >> Number;
+        if (std::cin.fail())
         {
-            if (tempCar->GetPower() > HP)
-                HP = tempCar->GetPower();
+            std::cin.clear();
+            std::cin.ignore(30000, '\n');
+
+            throw std::runtime_error("Only numbers will do");
         }
-    }
-    return HP;
+        
+    
 }
 
-void ClearAllVehicles(std::vector<Vehicle*> & vec)
+void DoAgain(bool& again)
 {
-    for (unsigned int i = 0; i < vec.size(); i++)
+    std::cout << "Do you want to try again y/n?";
+    while (true)
     {
-        delete vec[i];
+        
+        char YesNo;
+        std::cin >> YesNo;
+        if (YesNo == 'y')
+        {
+            again = true;
+            break;
+        }
+        if (YesNo == 'n')
+        {
+            std::cout << "OK" << "\n";
+            again = false;
+            break;
+        }
+        std::cout << "Come again?" << '\n';
+        std::cin.clear();
+        std::cin.ignore(30000, '\n');
     }
-    vec.clear();
 }
 
 // Main programme
 
 int main()
 {
+    
+    std::cout << "Make a fraction" << "\n";
 
-    Car c(Engine(150.f), Wheel(17.f), Wheel(17.f), Wheel(18.f), Wheel(18.f), 150.f);
-    std:: cout << c << "\n";
+    bool Again = false;
 
-    Bicycle t(Wheel(20), Wheel(20), 300);
-    std::cout << t << "\n";
+    do
+    {
+        try 
+        {
+            MakingFraction();
+            DoAgain(Again);
+        }
 
-    std::vector<Vehicle*> v;
-    v.push_back(new Car(Engine(150), Wheel(17), Wheel(17), Wheel(18), Wheel(18), 250));
-
-   // v.push_back(new Circle(Point(1, 2, 3), 7));
-
-    v.push_back(new Car(Engine(200), Wheel(19), Wheel(19), Wheel(19), Wheel(19), 130));
-
-    v.push_back(new WaterVehicle(5000));
-
-    std::cout <<"Show all vehicles" << "\n";
-    ShowAllVehicles(v);
-
-    std::cout << "The highest power is " << GetHighestPower(v)<< "\n";
-
-    std::cout << "Delete all vehicle" << "\n";
-    ClearAllVehicles(v);
+        
+        catch (const std::runtime_error& ex)
+        {
+            std::cout << ex.what() << "\n";
+            DoAgain(Again);
+            
+        }
+       
+    } while (Again);
 
     return 0;
+
 }
 
